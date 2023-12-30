@@ -1,0 +1,14 @@
+[gd_scene load_steps=2 format=3 uid="uid://cnsthwdybcdw7"]
+
+[ext_resource type="Script" path="res://addons/scenetomeshconverter/plugin_button.gd" id="1_bbpyn"]
+
+[node name="ConvertSceneToMeshButton" type="Button"]
+offset_right = 185.0
+offset_bottom = 31.0
+size_flags_horizontal = 0
+size_flags_vertical = 0
+text = "Convert scene to mesh"
+flat = true
+script = ExtResource("1_bbpyn")
+
+[connection signal="pressed" from="." to="." method="_on_convert_scene_to_mesh_button_pressed"]

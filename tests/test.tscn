@@ -1,0 +1,30 @@
+[gd_scene load_steps=3 format=3 uid="uid://e68yulkqigum"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ui7nd"]
+albedo_color = Color(1, 0.117647, 0.313726, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_j0f5s"]
+albedo_color = Color(0.129412, 1, 0.137255, 1)
+
+[node name="Test" type="Node3D"]
+
+[node name="Scene" type="Node3D" parent="."]
+
+[node name="Node3D" type="Node3D" parent="Scene"]
+transform = Transform3D(0.784701, 0, 0.619875, 0, 1, 0, -0.619875, 0, 0.784701, 1.18951, 0, 0)
+
+[node name="CSGBox3D" type="CSGBox3D" parent="Scene/Node3D"]
+transform = Transform3D(0.940521, -0.331286, 0.0752943, 0.331286, 0.845206, -0.419376, 0.0752943, 0.419376, 0.904685, 0, 0, 0)
+material = SubResource("StandardMaterial3D_ui7nd")
+
+[node name="CSGCombiner3D" type="CSGCombiner3D" parent="Scene"]
+transform = Transform3D(1, 0, 0, 0, 0.730389, -0.683032, 0, 0.683032, 0.730389, -0.993009, 0, 0)
+
+[node name="CSGBox3D" type="CSGBox3D" parent="Scene/CSGCombiner3D"]
+material = SubResource("StandardMaterial3D_j0f5s")
+
+[node name="CSGCylinder3D" type="CSGCylinder3D" parent="Scene/CSGCombiner3D"]
+operation = 2
+radius = 0.259
+height = 1.0
+sides = 13
