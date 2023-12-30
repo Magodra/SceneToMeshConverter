@@ -9,7 +9,7 @@ The **Scene to mesh converter** is a tool that convert a hirarchy of Node3D node
 2. Push the **Convert scene to mesh** button on the Spatial editor menu.
 3. The scene is replaed with a MeshInstace3D.
 
-Note! If you would like to keep the scene tree, please make a copy before converting.
+**Note!** If you would like to keep the scene tree, please make a copy before converting. Undo/Redo might still have issues.
 
 ## Screenshots
 
