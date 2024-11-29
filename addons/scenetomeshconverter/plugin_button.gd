@@ -62,7 +62,8 @@ func convert_node_to_meshinstance():
 	undo_redo.add_undo_method(parent, "add_child", node)
 	undo_redo.add_undo_method(self, "set_undo_owner", node, root)
 	undo_redo.commit_action()
-	
+
+	# Debug in running scene 
 #	node.get_parent().add_child(mesh_instance)
 #	node.get_parent().remove_child(node)
 	
@@ -84,7 +85,8 @@ func extract_meshes(mesh : ArrayMesh, gltf_state : GLTFState, node_idxes : Packe
 		var node_idx = node_idxes[idx]
 		var gltf_node := gltf_state.get_nodes()[node_idx]
 		
-		var node_xfrom = Transform3D(Basis(gltf_node.rotation), gltf_node.position)
+		var node_basis = Basis(gltf_node.rotation).scaled(gltf_node.scale)
+		var node_xfrom = Transform3D(node_basis, gltf_node.position)
 		var xform = parent_xform*node_xfrom
 		
 		if gltf_node.mesh != -1:
@@ -93,7 +95,7 @@ func extract_meshes(mesh : ArrayMesh, gltf_state : GLTFState, node_idxes : Packe
 		extract_meshes(mesh, gltf_state, gltf_node.children, xform)
 
 
-## Add meshe from the GLTF to the mesh
+## Add meshes from the GLTF to the mesh
 func add_mesh(mesh : ArrayMesh, gltf_state : GLTFState, mesh_idx : int, xform : Transform3D):
 	var gltf_mesh = gltf_state.get_meshes()[mesh_idx]
 	
@@ -105,7 +107,23 @@ func add_mesh(mesh : ArrayMesh, gltf_state : GLTFState, mesh_idx : int, xform : 
 		for vertex_idx in range (0, arrays[Mesh.ARRAY_VERTEX].size()):
 			var vec = xform*arrays[Mesh.ARRAY_VERTEX][vertex_idx]
 			arrays[Mesh.ARRAY_VERTEX][vertex_idx] = vec
-			
+		
+		# Transform normals using the basis (this fixes weird shading present if mesh/node has not default 0,0,0 rotation)
+		if arrays[Mesh.ARRAY_NORMAL].size() > 0:
+			for normal_idx in range(0, arrays[Mesh.ARRAY_NORMAL].size()):
+				arrays[Mesh.ARRAY_NORMAL][normal_idx] = xform.basis * arrays[Mesh.ARRAY_NORMAL][normal_idx]
+				arrays[Mesh.ARRAY_NORMAL][normal_idx] = arrays[Mesh.ARRAY_NORMAL][normal_idx].normalized()
+
+		# If mesh/node has negative scale, fix "flipped faces"
+		if xform.basis.determinant() < 0:
+			# flip the winding order of triangles
+			var indices = arrays[Mesh.ARRAY_INDEX]
+			if indices and indices.size() > 0:
+				for i in range(0, indices.size(), 3):
+					var temp = indices[i + 1]
+					indices[i + 1] = indices[i + 2]
+					indices[i + 2] = temp
+		
 		mesh.add_surface_from_arrays(
 			gltf_mesh.mesh.get_surface_primitive_type(idx),
 			arrays,
