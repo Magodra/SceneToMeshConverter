@@ -12,10 +12,6 @@ The **Scene to mesh converter** is a tool that convert a hierarchy of Node3D nod
 > [!NOTE]
 > If you would like to keep the scene tree, please make a copy before converting. Undo/Redo might still have issues.
 
-> [!IMPORTANT]
-> It is best for the node you want to convert to have default transform (Transform(0,0,0)). Otherwise the child meshes will be translated by the node's transform and as a result, they will be misplaced.
-
-
 ## Screenshots
 
 ![Convert scene to mesh, scene selected](screenshots/scene_to_mesh_test_scene.png)
