@@ -1,4 +1,4 @@
-## Copyright (c) 2023 Anders Reggestad
+## Copyright (c) 2023-2024 Anders Reggestad
 ##
 ## Licensed under the MIT license, see LICENSE.txt
 ## in the project root folder for more information.
