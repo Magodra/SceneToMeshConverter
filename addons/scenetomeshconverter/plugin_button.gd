@@ -141,7 +141,7 @@ func add_mesh(mesh : ArrayMesh, gltf_state : GLTFState, mesh_idx : int, xform : 
 						indices[i + 1] = indices[i + 2]
 						indices[i + 2] = temp
 			else:
-					print("Flipping of primitive type ", gltf_mesh.mesh.get_surface_primitive_type(idx), " not supported!")
+				print("Flipping of primitive type ", gltf_mesh.mesh.get_surface_primitive_type(idx), " not supported!")
 		
 		
 		mesh.add_surface_from_arrays(
