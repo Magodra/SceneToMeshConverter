@@ -54,5 +54,3 @@ func selection_changed() -> void:
 		plugin_button.show_button(root, node)
 	else:
 		plugin_button.hide_button()
-
-

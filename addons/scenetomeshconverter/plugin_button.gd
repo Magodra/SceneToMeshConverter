@@ -41,13 +41,18 @@ func convert_node_to_meshinstance():
 	# we first export to GLTF and then extracte the surfaces from that
 	var gltf_document := GLTFDocument.new()
 	var gltf_state := GLTFState.new()
+	
+	# Store the node transform, cleare the node transform before generating the gltf
+	# Restoring the transform to maintain data for undo operations.
+	var node_transform = node.global_transform
+	node.transform = Transform3D()
 	gltf_document.append_from_scene(node, gltf_state)
+	node.global_transform = node_transform
 	
 	var xform : Transform3D = Transform3D()
 	extract_meshes(mesh, gltf_state, gltf_state.root_nodes, xform)
 	
 	# Replace the scene with the mesh instance node.
-	var node_transform = node.global_transform
 	var node_name = node.name
 	var parent = node.get_parent()
 	var idx = node.get_index()
@@ -113,7 +118,7 @@ func add_mesh(mesh : ArrayMesh, gltf_state : GLTFState, mesh_idx : int, xform : 
 			for normal_idx in range(0, arrays[Mesh.ARRAY_NORMAL].size()):
 				arrays[Mesh.ARRAY_NORMAL][normal_idx] = xform.basis * arrays[Mesh.ARRAY_NORMAL][normal_idx]
 				arrays[Mesh.ARRAY_NORMAL][normal_idx] = arrays[Mesh.ARRAY_NORMAL][normal_idx].normalized()
-
+		
 		# If mesh/node has negative scale, fix "flipped faces"
 		if xform.basis.determinant() < 0:
 			# flip the winding order of triangles
