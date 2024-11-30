@@ -90,7 +90,8 @@ func extract_meshes(mesh : ArrayMesh, gltf_state : GLTFState, node_idxes : Packe
 		var node_idx = node_idxes[idx]
 		var gltf_node := gltf_state.get_nodes()[node_idx]
 		
-		var node_basis = Basis(gltf_node.rotation).scaled(gltf_node.scale)
+		# GLTF specivication state T * R * S for transformation
+		var node_basis = Basis(gltf_node.rotation)*Basis.from_scale(gltf_node.scale)
 		var node_xfrom = Transform3D(node_basis, gltf_node.position)
 		var xform = parent_xform*node_xfrom
 		
@@ -119,15 +120,29 @@ func add_mesh(mesh : ArrayMesh, gltf_state : GLTFState, mesh_idx : int, xform : 
 				arrays[Mesh.ARRAY_NORMAL][normal_idx] = xform.basis * arrays[Mesh.ARRAY_NORMAL][normal_idx]
 				arrays[Mesh.ARRAY_NORMAL][normal_idx] = arrays[Mesh.ARRAY_NORMAL][normal_idx].normalized()
 		
-		# If mesh/node has negative scale, fix "flipped faces"
+		# If mesh/node has negative scale, fix "flipped faces".
 		if xform.basis.determinant() < 0:
-			# flip the winding order of triangles
-			var indices = arrays[Mesh.ARRAY_INDEX]
-			if indices and indices.size() > 0:
-				for i in range(0, indices.size(), 3):
-					var temp = indices[i + 1]
-					indices[i + 1] = indices[i + 2]
-					indices[i + 2] = temp
+			if gltf_mesh.mesh.get_surface_primitive_type(idx) == Mesh.PRIMITIVE_TRIANGLES:
+				# flip the winding order of triangles
+				var indices = arrays[Mesh.ARRAY_INDEX]
+				
+				# If surface isn't using indices, create them so that we can use them to flipp the faces.
+				if indices == null or indices.size() == 0:
+					var vertices = arrays[Mesh.ARRAY_VERTEX]
+					indices = PackedInt32Array()
+					arrays[Mesh.ARRAY_INDEX] = indices
+					for i in range(0, vertices.size()):
+						indices.append(i)
+				
+				# Flipp the faces by rearranging the indices.
+				if indices and indices.size() > 0:
+					for i in range(0, indices.size(), 3):
+						var temp = indices[i + 1]
+						indices[i + 1] = indices[i + 2]
+						indices[i + 2] = temp
+			else:
+					print("Flipping of primitive type ", gltf_mesh.mesh.get_surface_primitive_type(idx), " not supported!")
+		
 		
 		mesh.add_surface_from_arrays(
 			gltf_mesh.mesh.get_surface_primitive_type(idx),
